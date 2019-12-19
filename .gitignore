@@ -1,8 +1,8 @@
 # BangGyoo edit
 *~
 *.un~
-Image/
-lib_venv/
+*/Image/
+*/lib_venv/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
