@@ -1,4 +1,5 @@
 import tkinter
+import tkinter.filedialog
 
 class Window(tkinter.Tk) :
     def __init__(self,title,width=800,height=600,x_pos=10,y_pos=10) :
@@ -45,4 +46,8 @@ class Window(tkinter.Tk) :
 
 if __name__ == "__main__" :
     win = Window("BangGyoo Proj")
+    file = tkinter.filedialog.askopenfilename(initialdir ="C:/",title = "choose image file",filetypes=[('png images','.png'),('gif images','.gif')])
+    image = tkinter.PhotoImage(file=file)
+    label = tkinter.Label(win,image=image)
+    label.pack()
     win.mainloop()
