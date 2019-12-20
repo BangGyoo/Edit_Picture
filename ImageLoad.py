@@ -39,6 +39,10 @@ window.geometry("500x700+100+100")
 src = cv2.imread("./Image/heart.png")
 src = cv2.resize(src, (400, 400))
 
+for i in range(50) :
+    for j in range(50) :
+        src[200 + i ,200 + j] = [255,255,255]
+
 img = cv2.cvtColor(src, cv2.COLOR_BGR2RGB)
 
 img = Image.fromarray(img)
