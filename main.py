@@ -19,13 +19,21 @@ class Window(tkinter.Tk) :
     def open(self) : 
         file = tkinter.filedialog.askopenfilename(title = "choose image file",filetypes=[('png images','.png'),('gif images','.gif')])
         self._src = cv2.imread(file) # orig file
-        src = cv2.resize(self._src, self.calc_resize(len(self._src[0]),len(self._src) )) # Is resized file 
-        img = cv2.cvtColor(src, cv2.COLOR_BGR2RGB)
+        self._src = cv2.resize(self._src, self.calc_resize(len(self._src[0]),len(self._src) )) # Is resized file 
+        self._src = cv2.cvtColor(self._src, cv2.COLOR_BGR2RGB)
+        self._update_picture(self._src)
+        
+    def _update_picture(self,img) :
         img = Image.fromarray(img)
         self._imgtk = ImageTk.PhotoImage(image=img) # Do not deallocate variables.
-        self.image = tkinter.Label(self, image=self._imgtk)
-        self.image.pack(side="bottom")
-        
+        if hasattr(self,'image') :
+            self.image.configure(image=self._imgtk)
+            self.image.image = self._imgtk
+        else :
+            self.image = tkinter.Label(self, image=self._imgtk)
+            self.image.pack(side="bottom")
+
+
     def display_color_histogram(self) :
         HIST_WIDTH = 512; HIST_HEIGHT = 400; HIST_TERM = 5000
         filewin = tkinter.Toplevel(self,width=HIST_WIDTH,height= HIST_HEIGHT)
@@ -43,7 +51,27 @@ class Window(tkinter.Tk) :
             canvas.create_rectangle((HIST_WIDTH//256)*i,HIST_HEIGHT,(HIST_WIDTH//256)*i,HIST_HEIGHT - int(hist[2][i]/hist_sum[2] * HIST_TERM),fill='#0000ff',outline='#0000ff')
 
 
+    def BGR_ToGray(self) :
+        self._src = cv2.cvtColor(self._src, cv2.COLOR_BGR2GRAY)
+        self._update_picture(self._src)
 
+    def thresholding(self) :
+        _ , self._src = cv2.threshold(self._src,127,255,cv2.THRESH_BINARY)
+        self._update_picture(self._src)
+
+    def stretching(self) :
+        self._src = cv2.equalizeHist(self._src)
+        self._update_picture(self._src)
+
+    def mean_filter(self) :
+        BLUR_SIZE = 3
+        self._src = cv2.blur(self._src,(BLUR_SIZE,BLUR_SIZE))
+        self._update_picture(self._src)
+
+    def median_filter(self) :
+        BLUR_SIZE = 3
+        self._src = cv2.medianBlur(self._src,BLUR_SIZE)
+        self._update_picture(self._src)
 
     def calc_resize(self,width,height) : # it's resizing size overflow
         if width > height :
@@ -74,11 +102,11 @@ class Window(tkinter.Tk) :
         filemenu.add_command(label="Histogram",command=self.display_color_histogram)
         menubar.add_cascade(label="File",menu=filemenu)
         filemenu = tkinter.Menu(menubar,tearoff=0)
-        filemenu.add_command(label="RGB_ToGray",command=self.doNothing)
-        filemenu.add_command(label="Thresholding",command=self.doNothing)
-        filemenu.add_command(label="Stretching",command=self.doNothing)
-        filemenu.add_command(label="Mean Filter",command=self.doNothing)
-        filemenu.add_command(label="Median Filter",command=self.doNothing)
+        filemenu.add_command(label="RGB_ToGray",command=self.BGR_ToGray)
+        filemenu.add_command(label="Thresholding",command=self.thresholding)
+        filemenu.add_command(label="Stretching",command=self.stretching)
+        filemenu.add_command(label="Mean Filter",command=self.mean_filter)
+        filemenu.add_command(label="Median Filter",command=self.median_filter)
         menubar.add_cascade(label="Normal Filter",menu=filemenu)
         filemenu = tkinter.Menu(menubar,tearoff=0)
         filemenu.add_command(label="1. Model",command=self.doNothing)
