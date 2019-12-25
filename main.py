@@ -25,6 +25,26 @@ class Window(tkinter.Tk) :
         self._imgtk = ImageTk.PhotoImage(image=img) # Do not deallocate variables.
         self.image = tkinter.Label(self, image=self._imgtk)
         self.image.pack(side="bottom")
+        
+    def display_color_histogram(self) :
+        HIST_WIDTH = 512; HIST_HEIGHT = 400; HIST_TERM = 5000
+        filewin = tkinter.Toplevel(self,width=HIST_WIDTH,height= HIST_HEIGHT)
+        canvas = tkinter.Canvas(filewin,bg= '#ffffff',width=HIST_WIDTH,height=HIST_HEIGHT)
+        canvas.pack()
+        hist = [ cv2.calcHist([self._src],[i],None,[256],[0,256]) for i in range(3) ] # args = calcHist(images,channels,mast,histsize,ranges)
+        
+        hist_sum = [0,0,0]
+        for i in range(3) :
+            for j in range(256) : hist_sum[i] += hist[i][j] # calc total_sum for average
+
+        for i in range(256) :
+            canvas.create_rectangle((HIST_WIDTH//256)*i,HIST_HEIGHT,(HIST_WIDTH//256)*i,HIST_HEIGHT - int(hist[0][i]/hist_sum[0] * HIST_TERM),fill='#ff0000',outline='#ff0000')
+            canvas.create_rectangle((HIST_WIDTH//256)*i,HIST_HEIGHT,(HIST_WIDTH//256)*i,HIST_HEIGHT - int(hist[1][i]/hist_sum[1] * HIST_TERM),fill='#00ff00',outline='#00ff00')
+            canvas.create_rectangle((HIST_WIDTH//256)*i,HIST_HEIGHT,(HIST_WIDTH//256)*i,HIST_HEIGHT - int(hist[2][i]/hist_sum[2] * HIST_TERM),fill='#0000ff',outline='#0000ff')
+
+
+
+
     def calc_resize(self,width,height) : # it's resizing size overflow
         if width > height :
             flag = True
@@ -46,14 +66,12 @@ class Window(tkinter.Tk) :
 
 
 
-
-
     def menu(self) :
         menubar = tkinter.Menu(self)
         filemenu = tkinter.Menu(menubar,tearoff=0)
         filemenu.add_command(label="Open",command=self.open)
         filemenu.add_command(label="Save",command=self.save)
-        filemenu.add_command(label="Histogram",command=self.doNothing)
+        filemenu.add_command(label="Histogram",command=self.display_color_histogram)
         menubar.add_cascade(label="File",menu=filemenu)
         filemenu = tkinter.Menu(menubar,tearoff=0)
         filemenu.add_command(label="RGB_ToGray",command=self.doNothing)
